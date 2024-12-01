@@ -1,13 +1,14 @@
 cmake_minimum_required(VERSION 3.30)
 
-if(NOT CMAKE_C_COMPILER_LAUNCHER OR NOT CMAKE_CXX_COMPILER_LAUNCHER)
-    if(DEFINED ENV{ENABLE_CCACHE} OR DEFINED ENABLE_CCACHE)
+if("${CMAKE_C_COMPILER_LAUNCHER}" STREQUAL "" OR "${CMAKE_CXX_COMPILER_LAUNCHER}"
+        STREQUAL "")
+    if("$ENV{ENABLE_CCACHE}" STREQUAL "ON" OR "${ENABLE_CCACHE}" STREQUAL "ON")
         if(WIN32)
-            find_program(CCACHE_EXECUTABLE "ccache.exe" CACHE PATH "ccache.exe path")
+            find_program(CCACHE_EXECUTABLE "ccache.exe")
         else()
-            find_program(CCACHE_EXECUTABLE ccache CACHE PATH "ccache path")
+            find_program(CCACHE_EXECUTABLE ccache)
         endif()
-        if(CCACHE_EXECUTABLE)
+        if(NOT "${CCACHE_EXECUTABLE}" STREQUAL "")
             set(CMAKE_C_COMPILER_LAUNCHER
                     ${CCACHE_EXECUTABLE}
                     CACHE PATH "Use ccache as C launcher")
