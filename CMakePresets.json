@@ -1,0 +1,547 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "installDir": "${sourceDir}/install/${presetName}",
+      "cacheVariables": {
+        "CMAKE_CXX_STANDARD": "23",
+        "CMAKE_CXX_STANDARD_REQUIRED": "ON",
+        "CMAKE_CXX_EXTENSIONS": "OFF",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "linux-base",
+      "hidden": true,
+      "inherits": [
+        "base"
+      ],
+      "cacheVariables": {
+        "CMAKE_MAKE_PROGRAM": "/usr/bin/ninja"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "windows-base",
+      "hidden": true,
+      "inherits": [
+        "base"
+      ],
+      "cacheVariables": {
+        "CMAKE_MAKE_PROGRAM": {
+          "type": "PATH",
+          "value": "$penv{NINJA_ROOT}/ninja.exe"
+        }
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "ccache",
+      "hidden": true,
+      "cacheVariables": {
+        "ENABLE_CCACHE": "ON"
+      },
+      "environment": {
+        "CCACHE_COMPILERCHECK": "content",
+        "CCACHE_SLOPPINESS": "pch_defines,time_macros",
+        "CCACHE_MAXSIZE": "20G",
+        "CCACHE_COMPRESS": "true",
+        "CCACHE_COMPRESSLEVEL": "9",
+        "CCACHE_DIR": "${sourceDir}/.ccache",
+        "CCACHE_BASEDIR": "${sourceDir}"
+      }
+    },
+    {
+      "name": "clang",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "/usr/bin/clang",
+        "CMAKE_CXX_COMPILER": "/usr/bin/clang++"
+      }
+    },
+    {
+      "name": "clang-windows",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "$penv{CLANG_ROOT}/bin/clang.exe",
+        "CMAKE_CXX_COMPILER": "$penv{CLANG_ROOT}/bin/clang++.exe",
+        "CMAKE_C_FLAGS": "-g -O0",
+        "CMAKE_CXX_FLAGS": "-g -O0"
+      }
+    },
+    {
+      "name": "gcc",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "/usr/bin/gcc",
+        "CMAKE_CXX_COMPILER": "/usr/bin/g++"
+      }
+    },
+    {
+      "name": "gcc-windows",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "$penv{GCC_ROOT}/bin/gcc.exe",
+        "CMAKE_CXX_COMPILER": "$penv{GCC_ROOT}/bin/g++.exe"
+      }
+    },
+    {
+      "name": "vcpkg",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": {
+          "type": "PATH",
+          "value": "$penv{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+        }
+      }
+    },
+    {
+      "name": "brew",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_PREFIX_PATH": {
+          "type": "PATH",
+          "value": "$penv{HOMEBREW_PREFIX}"
+        },
+        "CMAKE_FIND_FRAMEWORK": "LAST",
+        "CMAKE_FIND_APPBUNDLE": "LAST",
+        "CMAKE_FIND_USE_CMAKE_SYSTEM_PATH": "OFF",
+        "CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH": "OFF"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "debug",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "VCPKG_BUILD_TYPE": "debug",
+        "CMAKE_C_FLAGS": "-g -O0",
+        "CMAKE_CXX_FLAGS": "-g -O0"
+      }
+    },
+    {
+      "name": "release",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "VCPKG_BUILD_TYPE": "release",
+        "CMAKE_C_FLAGS": "",
+        "CMAKE_CXX_FLAGS": ""
+      }
+    },
+    {
+      "name": "leak-san",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_FLAGS": "-fsanitize=leak",
+        "CMAKE_CXX_FLAGS": "-fsanitize=leak"
+      }
+    },
+    {
+      "name": "memory-san",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_FLAGS": "-fsanitize=memory",
+        "CMAKE_CXX_FLAGS": "-fsanitize=memory"
+      }
+    },
+    {
+      "name": "thread-san",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_FLAGS": "-fsanitize=thread",
+        "CMAKE_CXX_FLAGS": "-fsanitize=thread"
+      }
+    },
+    {
+      "name": "undef-san",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_FLAGS": "-fsanitize=undefined",
+        "CMAKE_CXX_FLAGS": "-fsanitize=undefined"
+      }
+    },
+    {
+      "name": "addr-san",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_FLAGS": "-fsanitize=address",
+        "CMAKE_CXX_FLAGS": "-fsanitize=address"
+      }
+    },
+    {
+      "name": "windows-debug",
+      "hidden": true,
+      "inherits": [
+        "debug",
+        "windows-base"
+      ]
+    },
+    {
+      "name": "windows-vcpkg-debug",
+      "hidden": true,
+      "inherits": [
+        "vcpkg",
+        "windows-debug"
+      ]
+    },
+    {
+      "name": "linux-debug",
+      "hidden": true,
+      "inherits": [
+        "debug",
+        "linux-base"
+      ]
+    },
+    {
+      "name": "linux-vcpkg-debug",
+      "hidden": true,
+      "inherits": [
+        "vcpkg",
+        "linux-debug"
+      ]
+    },
+    {
+      "name": "linux-release",
+      "hidden": true,
+      "inherits": [
+        "release",
+        "linux-base"
+      ]
+    },
+    {
+      "name": "linux-vcpkg-release",
+      "hidden": true,
+      "inherits": [
+        "vcpkg",
+        "linux-release"
+      ]
+    },
+    {
+      "name": "windows-release",
+      "hidden": true,
+      "inherits": [
+        "release",
+        "windows-base"
+      ]
+    },
+    {
+      "name": "windows-vcpkg-release",
+      "hidden": true,
+      "inherits": [
+        "vcpkg",
+        "windows-release"
+      ]
+    },
+    {
+      "name": "linux-clang-debug-leak",
+      "displayName": "Linux Clang Debug Leak",
+      "hidden": false,
+      "inherits": [
+        "linux-debug",
+        "clang",
+        "leak-san"
+      ]
+    },
+    {
+      "name": "linux-clang-debug-memory",
+      "displayName": "Linux Clang Debug Memory",
+      "hidden": false,
+      "inherits": [
+        "linux-debug",
+        "clang",
+        "memory-san"
+      ]
+    },
+    {
+      "name": "linux-clang-debug-thread",
+      "hidden": false,
+      "displayName": "Linux Clang Debug Thread",
+      "inherits": [
+        "linux-debug",
+        "clang",
+        "thread-san"
+      ]
+    },
+    {
+      "name": "linux-clang-debug-undef",
+      "hidden": false,
+      "displayName": "Linux Clang Debug Undefined",
+      "inherits": [
+        "linux-debug",
+        "clang",
+        "undef-san"
+      ]
+    },
+    {
+      "name": "linux-clang-debug-address",
+      "hidden": false,
+      "displayName": "Linux Clang Debug Address",
+      "inherits": [
+        "linux-debug",
+        "clang",
+        "addr-san"
+      ]
+    },
+    {
+      "name": "linux-clang-debug",
+      "displayName": "Linux Clang Debug",
+      "hidden": false,
+      "inherits": [
+        "linux-debug",
+        "clang"
+      ]
+    },
+    {
+      "name": "linux-gcc-debug",
+      "displayName": "Linux GCC Debug",
+      "hidden": false,
+      "inherits": [
+        "linux-debug",
+        "gcc"
+      ]
+    },
+    {
+      "name": "linux-clang-release",
+      "displayName": "Linux Clang Release",
+      "hidden": false,
+      "inherits": [
+        "linux-release",
+        "clang"
+      ]
+    },
+    {
+      "name": "linux-gcc-release",
+      "displayName": "Linux GCC14 Release",
+      "hidden": false,
+      "inherits": [
+        "linux-release",
+        "gcc"
+      ]
+    },
+    {
+      "name": "linux-clang-vcpkg-debug-leak",
+      "displayName": "Linux Clang VCPKG Debug Leak",
+      "hidden": false,
+      "inherits": [
+        "linux-vcpkg-debug",
+        "clang",
+        "leak-san"
+      ]
+    },
+    {
+      "name": "linux-clang-vcpkg-debug-memory",
+      "displayName": "Linux Clang VCPKG Debug Memory",
+      "hidden": false,
+      "inherits": [
+        "linux-vcpkg-debug",
+        "clang",
+        "memory-san"
+      ]
+    },
+    {
+      "name": "linux-clang-vcpkg-debug-thread",
+      "hidden": false,
+      "displayName": "Linux Clang VCPKG Debug Thread",
+      "inherits": [
+        "linux-vcpkg-debug",
+        "clang",
+        "thread-san"
+      ]
+    },
+    {
+      "name": "linux-clang-vcpkg-debug-undef",
+      "hidden": false,
+      "displayName": "Linux Clang VCPKG Debug Undefined",
+      "inherits": [
+        "linux-vcpkg-debug",
+        "clang",
+        "undef-san"
+      ]
+    },
+    {
+      "name": "linux-clang-vcpkg-debug-address",
+      "hidden": false,
+      "displayName": "Linux Clang VCPKG Debug Address",
+      "inherits": [
+        "linux-vcpkg-debug",
+        "clang",
+        "addr-san"
+      ]
+    },
+    {
+      "name": "linux-clang-vcpkg-debug",
+      "displayName": "Linux Clang VCPKG Debug",
+      "hidden": false,
+      "inherits": [
+        "linux-vcpkg-debug",
+        "clang",
+        "ccache"
+      ]
+    },
+    {
+      "name": "linux-gcc-vcpkg-debug",
+      "displayName": "Linux GCC VCPKG Debug",
+      "hidden": false,
+      "inherits": [
+        "linux-vcpkg-debug",
+        "gcc",
+        "ccache"
+      ]
+    },
+    {
+      "name": "linux-clang-vcpkg-release",
+      "displayName": "Linux Clang VCPKG Release",
+      "hidden": false,
+      "inherits": [
+        "linux-vcpkg-release",
+        "clang",
+        "ccache"
+      ]
+    },
+    {
+      "name": "linux-gcc-vcpkg-release",
+      "displayName": "Linux GCC VCPKG Release",
+      "hidden": false,
+      "inherits": [
+        "linux-vcpkg-release",
+        "gcc",
+        "ccache"
+      ]
+    },
+    {
+      "name": "windows-gcc-vcpkg-release",
+      "displayName": "Windows GCC VCPKG Release",
+      "hidden": false,
+      "inherits": [
+        "windows-vcpkg-release",
+        "gcc-windows",
+        "ccache"
+      ]
+    },
+    {
+      "name": "windows-gcc-vcpkg-debug",
+      "displayName": "Windows GCC VCPKG Debug",
+      "hidden": false,
+      "inherits": [
+        "windows-vcpkg-debug",
+        "gcc-windows",
+        "ccache"
+      ]
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "linux-clang-debug",
+      "displayName": "Linux Clang Debug",
+      "hidden": false,
+      "configurePreset": "linux-clang-debug"
+    },
+    {
+      "name": "linux-gcc-debug",
+      "displayName": "Linux GCC Debug",
+      "hidden": false,
+      "configurePreset": "linux-gcc-debug"
+    },
+    {
+      "name": "linux-clang-vcpkg-debug",
+      "displayName": "Linux Clang VCPKG Debug",
+      "hidden": false,
+      "configurePreset": "linux-clang-vcpkg-debug"
+    },
+    {
+      "name": "linux-gcc-vcpkg-debug",
+      "displayName": "Linux GCC VCPKG Debug",
+      "hidden": false,
+      "configurePreset": "linux-gcc-vcpkg-debug"
+    },
+    {
+      "name": "linux-clang-release",
+      "displayName": "Linux Clang Release",
+      "hidden": false,
+      "configurePreset": "linux-clang-release"
+    },
+    {
+      "name": "linux-gcc-release",
+      "displayName": "Linux GCC Release",
+      "hidden": false,
+      "configurePreset": "linux-gcc-release"
+    },
+    {
+      "name": "linux-clang-vcpkg-release",
+      "displayName": "Linux Clang VCPKG Release",
+      "hidden": false,
+      "configurePreset": "linux-clang-vcpkg-release"
+    },
+    {
+      "name": "linux-gcc-vcpkg-release",
+      "displayName": "Linux GCC VCPKG Release",
+      "hidden": false,
+      "configurePreset": "linux-gcc-vcpkg-release"
+    },
+    {
+      "name": "linux-clang-debug-leak",
+      "displayName": "Linux Clang Debug Leak",
+      "hidden": false,
+      "configurePreset": "linux-clang-debug-leak"
+    },
+    {
+      "name": "linux-clang-debug-memory",
+      "displayName": "Linux Clang Debug Memory",
+      "hidden": false,
+      "configurePreset": "linux-clang-debug-memory"
+    },
+    {
+      "name": "linux-clang-debug-thread",
+      "displayName": "Linux Clang Debug Thread",
+      "hidden": false,
+      "configurePreset": "linux-clang-debug-thread"
+    },
+    {
+      "name": "linux-clang-debug-undef",
+      "displayName": "Linux Clang Debug Undefined",
+      "hidden": false,
+      "configurePreset": "linux-clang-debug-undef"
+    },
+    {
+      "name": "linux-clang-debug-address",
+      "displayName": "Linux Clang Debug Address",
+      "hidden": false,
+      "configurePreset": "linux-clang-debug-address"
+    },
+    {
+      "name": "windows-gcc-vcpkg-debug",
+      "displayName": "Windows GCC VCPKG Debug",
+      "hidden": false,
+      "configurePreset": "windows-gcc-vcpkg-debug"
+    },
+    {
+      "name": "windows-gcc-vcpkg-release",
+      "displayName": "Windows GCC VCPKG Release",
+      "hidden": false,
+      "configurePreset": "windows-gcc-vcpkg-release"
+    }
+  ]
+}

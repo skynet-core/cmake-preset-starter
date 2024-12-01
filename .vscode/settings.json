@@ -1,0 +1,15 @@
+{
+    "cmake.copyCompileCommands": "${workspaceFolder}/compile_commands.json",
+    "cmake.loadCompileCommands": true,
+    "cmake.options.advanced": {
+        "build": {
+            "statusBarVisibility": "icon"
+        },
+        "launch": {
+            "statusBarVisibility": "icon"
+        },
+        "debug": {
+            "statusBarVisibility": "icon"
+        }
+    }
+}
